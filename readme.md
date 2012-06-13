@@ -33,7 +33,7 @@ This solution has mostly just evolved as I played around with Redis setbit funct
 
 * I haven't used much Python recently so it's probably not very idiomatic Python. I hope to update some of the names and use generators etc where possible.  
 
-* This solution (using bitmasks to count unique visits) is only practical when you can my unique users into a tight keyspace.
+* This solution (using bitmasks to count unique visits) is only practical when you can fit unique users into a tight keyspace.
 
 * There may well be better ways to approach this problem, but the initial task description doesn't specify enough information to make that choice correctly. For example knowing rough numbers of unique documents, unique users and frequency of document visits and other analytics required would help influence the design and estimate memory usage etc. 
  
