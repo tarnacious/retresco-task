@@ -1,5 +1,7 @@
 from redis import Redis
 from bitarray import bitarray
+from datetime import datetime
+from datetime import timedelta
 
 class KeyBuilder:
     
@@ -26,6 +28,23 @@ class KeyBuilder:
                        "year": str(year) }
         
         return self.key_format % key_values
+    
+    
+    def document_range_keys(self, document_name, date_from, date_to):
+
+        # additional day to make the range inclusive, hack?
+        number_of_days = (date_to - date_from).days + 1
+
+        days = [date_from + timedelta(days = i) for i in range(number_of_days)]
+
+        def key_values(date):
+
+            return  { "document_name": document_name,
+                      "day": str(date.day),
+                      "month": str(date.month),
+                      "year": str(date.year) }
+        
+        return [self.key_format % key_values(day) for day in days]
 
 
 
@@ -57,9 +76,22 @@ class ArticleViews:
         return self.count_views(key)
 
 
+    def article_daterange_views(self, document_name, start_date, end_date):
+
+        key = self.keybuilder.document_range_keys(document_name, start_date, end_date)
+
+        return self.count_views(key)
+
+
     def count_views(self, document_keys): 
         
-        keys = self.redis.keys(document_keys)
+        keys = []
+
+        if isinstance(document_keys, list):
+            for document_key in document_keys:
+                keys.extend(self.redis.keys(document_key)) 
+        else:
+            keys = self.redis.keys(document_keys)
 
         union = bitarray()
         
