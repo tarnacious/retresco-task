@@ -71,20 +71,29 @@ class testCountingDailyDocumentViews(unittest.TestCase):
 
     def testEmptyKeyHasZeroViews(self):
         
-        date = datetime(2012,6,12)
-        views = self.article_views.article_views("test_document", date)
+        views = self.article_views.article_views("test_document", datetime(2012,6,12))
 
         self.assertEqual(0, views)
 
-    def testSingleView(self):
-        
-        date = datetime(2012,6,12)
+
+    def testOutOfRangeViews(self):
         
         # view article
-        self.article_views.view_article("test_document", 1, date)
+        self.article_views.view_article("test_document", 1, datetime(2012,8,22))
         
         # get views
-        views = self.article_views.article_views("test_document", date)
+        views = self.article_views.article_views("test_document", datetime(2012,6,12))
+
+        self.assertEqual(0, views)
+
+    
+    def testSingleView(self):
+        
+        # view article
+        self.article_views.view_article("test_document", 1, datetime(2012,6,12))
+        
+        # get views
+        views = self.article_views.article_views("test_document", datetime(2012,6,12))
 
         self.assertEqual(1, views)
     
@@ -143,6 +152,18 @@ class testCountMonthlyDocumentViews(unittest.TestCase):
 
         self.assertEqual(0, views)
     
+    
+    def testOutOfRangeViews(self):
+        
+        # view article
+        self.article_views.view_article("test_document", 1, datetime(2012,8,22))
+        
+        # get views
+        views = self.article_views.article_monthly_views("test_document", 6, 2012)
+
+        self.assertEqual(0, views)
+
+    
 
     def testMultipleUniqueViews(self):
         
@@ -197,7 +218,21 @@ class testCountDateRangeDocumentViews(unittest.TestCase):
 
         self.assertEqual(0, views)
     
+    
+    def testOutOfRangeViews(self):
+        
+        # view article
+        self.article_views.view_article("test_document", 1, datetime(2012,6,22))
+        
+        # get views
+        start_date = datetime(2012,6,12)
+        end_date = datetime(2012,6,14)
 
+        views = self.article_views.article_daterange_views("test_document", start_date, end_date)
+
+        self.assertEqual(0, views)
+
+    
     def testMultipleUniqueViews(self):
         
         # view article
