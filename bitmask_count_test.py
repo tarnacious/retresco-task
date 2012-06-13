@@ -35,6 +35,7 @@ class testKeys(unittest.TestCase):
        
         self.assertEqual(expected, key)
 
+
     def testDocumentRangeKeys(self):
 
         start_date = datetime(2012,6,12)
@@ -225,7 +226,7 @@ class testCountDateRangeDocumentViews(ViewCountTestCase):
         start_date = datetime(2012,6,12)
         end_date = datetime(2012,6,14)
         
-        views = self.article_views.article_daterange_views("test_document", start_date, end_date)
+        views = self.article_views.article_date_range_views("test_document", start_date, end_date)
 
         self.assertEqual(0, views)
     
@@ -239,7 +240,7 @@ class testCountDateRangeDocumentViews(ViewCountTestCase):
         start_date = datetime(2012,6,12)
         end_date = datetime(2012,6,14)
 
-        views = self.article_views.article_daterange_views("test_document", start_date, end_date)
+        views = self.article_views.article_date_range_views("test_document", start_date, end_date)
 
         self.assertEqual(0, views)
 
@@ -254,7 +255,7 @@ class testCountDateRangeDocumentViews(ViewCountTestCase):
         start_date = datetime(2012,6,12)
         end_date = datetime(2012,6,14)
 
-        views = self.article_views.article_daterange_views("test_document", start_date, end_date)
+        views = self.article_views.article_date_range_views("test_document", start_date, end_date)
 
         self.assertEqual(2, views)
 
@@ -269,7 +270,7 @@ class testCountDateRangeDocumentViews(ViewCountTestCase):
         start_date = datetime(2012,6,12)
         end_date = datetime(2012,6,14)
 
-        views = self.article_views.article_daterange_views("test_document", start_date, end_date)
+        views = self.article_views.article_date_range_views("test_document", start_date, end_date)
 
         self.assertEqual(1, views)
 
@@ -282,6 +283,13 @@ class testAnalytics(ViewCountTestCase):
     Test analytics
 
     """
+    
+    def setUp(self):
+
+        ViewCountTestCase.setUp(self)
+        
+        self.analytics = bitmask_count.Analytics(self.article_views)
+
 
     def testReturnsAllUniqueArticles(self):
 
@@ -291,10 +299,26 @@ class testAnalytics(ViewCountTestCase):
         self.article_views.view_article("b", 6, datetime(2012,4,14))
         self.article_views.view_article("c", 6, datetime(2012,6,14))
             
-        all_articles = self.article_views.all_articles()
+        all_articles = self.analytics.all_articles()
         
         self.assertEqual(sorted(["a","b","c"]), sorted(all_articles))
+
+
+    def testDateRangeViews(self):
     
+        self.article_views.view_article("a", 5, datetime(2012,6,12))
+        self.article_views.view_article("a", 5, datetime(2012,6,14))
+        self.article_views.view_article("a", 8, datetime(2012,6,14))
+        self.article_views.view_article("a", 6, datetime(2012,6,14))
+        
+        self.article_views.view_article("c", 6, datetime(2012,4,14))
+        self.article_views.view_article("c", 7, datetime(2012,4,14))
+
+        self.article_views.view_article("b", 6, datetime(2012,6,14))
+
+        most_views = self.analytics.date_range_views(datetime(2012,1,1),datetime(2013,1,1))
+
+        self.assertEqual([("a",3),("c",2),("b",1)], most_views)
 
 
 if __name__ == '__main__':
