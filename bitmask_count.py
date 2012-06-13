@@ -29,9 +29,11 @@ class Analytics:
 
         articles = self.all_articles()
 
-        # Some or all of this could come from a cache in redis
-        views = [(article,self.article_views.article_date_range_views(article,start_date,end_date)) 
-                for article in articles]
+        def article_count(article):
+            # Some or all of this could come from a cache in redis
+            return self.article_views.article_date_range_views(article, start_date, end_date)
+
+        views = [(article, article_count(article)) for article in articles]
 
         sorted_views = sorted(views, key=lambda tup: -tup[1])
 
