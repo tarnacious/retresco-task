@@ -27,11 +27,15 @@ This solution has mostly just evolved as I played around with Redis setbit funct
 
 * It has dependencies on redis-py and bitarray. (Does Python/pip have a Gemfile equivalent?)
 
+* Currently most of the test require a running development Redis server. This could be fixed with some mocks, but the tests are the only scripts I have that call the code, and it's nice seeing it actually working. 
+
+* I'd like to write some basic scripts to load it with some data, query it and measure performance. Then I could fix the unit tests too.
+
 * I haven't used much Python recently so it's probably not very idiomatic Python. I hope to update some of the names and use generators etc where possible.  
 
 * This solution (using bitmasks to count unique visits) is only practical when you can my unique users into a tight keyspace.
 
 * There may well be better ways to approach this problem, but the initial task description doesn't specify enough information to make that choice correctly. For example knowing rough numbers of unique documents, unique users and frequency of document visits and other analytics required would help influence the design and estimate memory usage etc. 
-
+ 
 * I'm keen to hear any feedback.
 
