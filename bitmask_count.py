@@ -1,14 +1,13 @@
 from redis import Redis
 from bitarray import bitarray
 
-class ArticleViews:
+class KeyBuilder:
+    
+    def __init__(self):
 
-    def __init__(self, redis):
-
-        self.redis = redis
         self.key_format = "views:%(document_name)s:%(year)s:%(month)s:%(day)s"
-
-
+    
+    
     def document_key(self, document_name, date):
 
         key_values = { "document_name": document_name,
@@ -27,26 +26,33 @@ class ArticleViews:
                        "year": str(year) }
         
         return self.key_format % key_values
-    
 
+
+
+class ArticleViews:
+
+    def __init__(self, redis):
+
+        self.redis = redis
+        self.keybuilder = KeyBuilder()
 
     def view_article(self, document_name, user_key, date):
 
-        key = self.document_key(document_name, date)
+        key = self.keybuilder.document_key(document_name, date)
 
         self.redis.setbit(key, user_key, 1)
 
 
     def article_views(self, document_name, date):
 
-        key = self.document_key(document_name, date)
+        key = self.keybuilder.document_key(document_name, date)
 
         return self.count_views(key)
 
     
     def article_monthly_views(self, document_name, month, year):
 
-        key = self.document_month_key(document_name, month, year)
+        key = self.keybuilder.document_month_key(document_name, month, year)
 
         return self.count_views(key)
 

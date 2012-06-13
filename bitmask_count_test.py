@@ -13,13 +13,13 @@ class testKeys(unittest.TestCase):
     
     def setUp(self):
 
-        self.article_views = bitmask_count.ArticleViews(None) 
+        self.keybuilder = bitmask_count.KeyBuilder()
 
     
     def testDocumentKey(self):
 
         date = datetime(2012,6,12)
-        key = self.article_views.document_key("test_document", date) 
+        key = self.keybuilder.document_key("test_document", date) 
 
         expected = "views:test_document:2012:6:12"
        
@@ -28,7 +28,7 @@ class testKeys(unittest.TestCase):
     
     def testDocumentMonthKey(self):
 
-        key = self.article_views.document_month_key("test_document", 6, 2012) 
+        key = self.keybuilder.document_month_key("test_document", 6, 2012) 
 
         expected = "views:test_document:2012:6:*"
        
