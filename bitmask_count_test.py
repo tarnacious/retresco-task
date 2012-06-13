@@ -87,6 +87,17 @@ class testCountingDailyDocumentViews(unittest.TestCase):
         self.assertEqual(0, views)
 
     
+    def testDifferentDocumentViews(self):
+        
+        # view article
+        self.article_views.view_article("test_document_1", 1, datetime(2012,8,22))
+        
+        # get views
+        views = self.article_views.article_views("test_document_2", datetime(2012,6,12))
+
+        self.assertEqual(0, views)
+
+    
     def testSingleView(self):
         
         # view article
