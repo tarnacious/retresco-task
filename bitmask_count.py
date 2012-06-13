@@ -47,40 +47,16 @@ class KeyBuilder:
         return [self.key_format % key_values(day) for day in days]
 
 
-
-class ArticleViews:
+class Storage:
 
     def __init__(self, redis):
 
         self.redis = redis
-        self.keybuilder = KeyBuilder()
-
-    def view_article(self, document_name, user_key, date):
-
-        key = self.keybuilder.document_key(document_name, date)
-
-        self.redis.setbit(key, user_key, 1)
 
 
-    def article_views(self, document_name, date):
-
-        key = self.keybuilder.document_key(document_name, date)
-
-        return self.count_views(key)
-
-    
-    def article_monthly_views(self, document_name, month, year):
-
-        key = self.keybuilder.document_month_key(document_name, month, year)
-
-        return self.count_views(key)
-
-
-    def article_daterange_views(self, document_name, start_date, end_date):
-
-        key = self.keybuilder.document_range_keys(document_name, start_date, end_date)
-
-        return self.count_views(key)
+    def mark_viewed(self, document_key, user_key):
+        
+        self.redis.setbit(document_key, user_key, 1)
 
 
     def count_views(self, document_keys): 
@@ -108,4 +84,39 @@ class ArticleViews:
                 union = union | bits 
                
         return union.count()
+
+
+
+class ArticleViews:
+
+    def __init__(self, storage):
+
+        self.storage = storage
+        self.keybuilder = KeyBuilder()
+
+    def view_article(self, document_name, user_key, date):
+
+        key = self.keybuilder.document_key(document_name, date)
+        self.storage.mark_viewed(key, user_key)
+
+    def article_views(self, document_name, date):
+
+        key = self.keybuilder.document_key(document_name, date)
+
+        return self.storage.count_views(key)
+
+    
+    def article_monthly_views(self, document_name, month, year):
+
+        key = self.keybuilder.document_month_key(document_name, month, year)
+
+        return self.storage.count_views(key)
+
+
+    def article_daterange_views(self, document_name, start_date, end_date):
+
+        key = self.keybuilder.document_range_keys(document_name, start_date, end_date)
+
+        return self.storage.count_views(key)
+
 

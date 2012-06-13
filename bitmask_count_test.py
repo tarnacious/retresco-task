@@ -58,8 +58,10 @@ class ViewCountTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-
         self.redis = redis.Redis()
+        storage = bitmask_count.Storage(self.redis)
+        self.article_views = bitmask_count.ArticleViews(storage) 
+        
         self.deleteTestKeys()
     
     def tearDown(self):
@@ -71,7 +73,6 @@ class ViewCountTestCase(unittest.TestCase):
         for key in test_keys:
             self.redis.delete(key)
 
-        self.article_views = bitmask_count.ArticleViews(self.redis) 
 
 
 class testCountingDailyDocumentViews(ViewCountTestCase):
