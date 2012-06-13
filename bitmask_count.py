@@ -19,7 +19,7 @@ class KeyBuilder:
         
         return self.key_format % key_values
 
-
+    
     def document_month_key(self, document_name, month, year):
         
         key_values = { "document_name": document_name,
@@ -29,7 +29,7 @@ class KeyBuilder:
         
         return self.key_format % key_values
     
-    
+
     def document_range_keys(self, document_name, date_from, date_to):
 
         # additional day to make the range inclusive, hack?
@@ -47,6 +47,16 @@ class KeyBuilder:
         return [self.key_format % key_values(day) for day in days]
 
 
+    def all_documents_pattern(self):
+
+        key_values = { "document_name": "*",
+                       "day": "*",
+                       "month": "*",
+                       "year": "*" }
+        
+        return self.key_format % key_values
+
+
 class Storage:
 
     def __init__(self, redis):
@@ -54,20 +64,27 @@ class Storage:
         self.redis = redis
 
 
+    def all_keys(self, key_patterns):
+
+        keys = []
+
+        if isinstance(key_patterns, list):
+            for document_key in key_patterns:
+                keys.extend(self.redis.keys(document_key)) 
+        else:
+            keys = self.redis.keys(key_patterns)
+
+        return keys
+
+
     def mark_viewed(self, document_key, user_key):
         
         self.redis.setbit(document_key, user_key, 1)
 
 
-    def count_views(self, document_keys): 
-        
-        keys = []
-
-        if isinstance(document_keys, list):
-            for document_key in document_keys:
-                keys.extend(self.redis.keys(document_key)) 
-        else:
-            keys = self.redis.keys(document_keys)
+    def count_views(self, document_key_patterns): 
+       
+        keys = self.all_keys(document_key_patterns)        
 
         union = bitarray()
         
@@ -118,5 +135,17 @@ class ArticleViews:
         key = self.keybuilder.document_range_keys(document_name, start_date, end_date)
 
         return self.storage.count_views(key)
+
+
+    def all_articles(self):
+        pattern = self.keybuilder.all_documents_pattern()
+        all_keys = self.storage.all_keys(pattern)
+
+        all_document_names = [full_key.split(":")[1] for full_key in all_keys]
+
+        unique_document_names = set(all_document_names)
+
+        return list(unique_document_names)
+
 
 

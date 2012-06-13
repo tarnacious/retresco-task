@@ -48,6 +48,15 @@ class testKeys(unittest.TestCase):
         self.assertEqual(expected, keys)
    
 
+    def testAllDocumentPattern(self):
+
+        keys = self.keybuilder.all_documents_pattern()
+        
+        expected = 'views:*:*:*:*'
+        
+        self.assertEqual(expected, keys)
+
+
 class ViewCountTestCase(unittest.TestCase): 
     
     """
@@ -225,7 +234,7 @@ class testCountDateRangeDocumentViews(ViewCountTestCase):
         
         # view article
         self.article_views.view_article("test_document", 1, datetime(2012,6,22))
-        
+
         # get views
         start_date = datetime(2012,6,12)
         end_date = datetime(2012,6,14)
@@ -263,6 +272,29 @@ class testCountDateRangeDocumentViews(ViewCountTestCase):
         views = self.article_views.article_daterange_views("test_document", start_date, end_date)
 
         self.assertEqual(1, views)
+
+
+
+class testAnalytics(ViewCountTestCase):
+
+    """
+    
+    Test analytics
+
+    """
+
+    def testReturnsAllUniqueArticles(self):
+
+        self.article_views.view_article("a", 5, datetime(2012,6,12))
+        self.article_views.view_article("a", 5, datetime(2012,6,14))
+        self.article_views.view_article("a", 6, datetime(2012,6,14))
+        self.article_views.view_article("b", 6, datetime(2012,4,14))
+        self.article_views.view_article("c", 6, datetime(2012,6,14))
+            
+        all_articles = self.article_views.all_articles()
+        
+        self.assertEqual(sorted(["a","b","c"]), sorted(all_articles))
+    
 
 
 if __name__ == '__main__':
